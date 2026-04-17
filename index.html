@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Analytics — E-Commerce Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── RESET & BASE ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black:   #080808;
+  --gray-0:  #111111;
+  --gray-1:  #1a1a1a;
+  --gray-2:  #242424;
+  --gray-3:  #2e2e2e;
+  --gray-4:  #3a3a3a;
+  --gray-5:  #555555;
+  --gray-6:  #888888;
+  --gray-7:  #b0b0b0;
+  --gray-8:  #d4d4d4;
+  --gray-9:  #efefef;
+  --white:   #f8f8f8;
+  --accent:  #e8e8e8;
+  --danger:  #c0392b;
+  --warn:    #999;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --display: 'Syne', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--black);
+  color: var(--gray-8);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── SCROLLBAR ─────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--gray-1); }
+::-webkit-scrollbar-thumb { background: var(--gray-4); border-radius: 2px; }
+
+/* ── LAYOUT ────────────────────────────────────────────────────── */
+.shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  grid-template-rows: 56px 1fr;
+  min-height: 100vh;
+}
+
+/* ── TOPBAR ────────────────────────────────────────────────────── */
+.topbar {
+  grid-column: 1 / -1;
+  background: var(--gray-0);
+  border-bottom: 1px solid var(--gray-2);
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar .logo {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  color: var(--white);
+  text-transform: uppercase;
+}
+.topbar .logo span { color: var(--gray-5); }
+.topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.topbar-pill {
+  font-family: var(--mono);
+  font-size: 10px;
+  background: var(--gray-2);
+  color: var(--gray-6);
+  border: 1px solid var(--gray-3);
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.08em;
+}
+.status-dot {
+  width: 6px; height: 6px;
+  background: #4a4a4a;
+  border-radius: 50%;
+  position: relative;
+}
+.status-dot.live { background: #5a7a5a; box-shadow: 0 0 6px #5a7a5a60; }
+
+/* ── SIDEBAR ────────────────────────────────────────────────────── */
+.sidebar {
+  background: var(--gray-0);
+  border-right: 1px solid var(--gray-2);
+  padding: 24px 0;
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+}
+.nav-section {
+  padding: 0 16px 20px;
+}
+.nav-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--gray-5);
+  text-transform: uppercase;
+  padding: 0 8px;
+  margin-bottom: 6px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  color: var(--gray-6);
+  font-size: 13px;
+  font-weight: 400;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+.nav-item:hover { background: var(--gray-2); color: var(--gray-8); }
+.nav-item.active { background: var(--gray-2); color: var(--white); }
+.nav-item .ico { font-size: 15px; opacity: 0.7; flex-shrink: 0; }
+.nav-divider { height: 1px; background: var(--gray-2); margin: 8px 16px; }
+
+/* ── MAIN CONTENT ──────────────────────────────────────────────── */
+.main {
+  padding: 32px 36px;
+  overflow-y: auto;
+  height: calc(100vh - 56px);
+}
+
+/* ── PAGE HEADER ──────────────────────────────────────────────── */
+.page-header {
+  margin-bottom: 28px;
+}
+.page-title {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: -0.01em;
+}
+.page-sub {
+  color: var(--gray-5);
+  font-size: 12px;
+  margin-top: 3px;
+  font-family: var(--mono);
+  letter-spacing: 0.04em;
+}
+
+/* ── SQL QUERY BOX ─────────────────────────────────────────────── */
+.sql-box {
+  background: var(--gray-1);
+  border: 1px solid var(--gray-3);
+  border-left: 3px solid var(--gray-4);
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  position: relative;
+}
+.sql-box-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--gray-5);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.sql-box pre {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--gray-6);
+  font-weight: 300;
+  white-space: pre-wrap;
+  line-height: 1.7;
+}
+.sql-keyword { color: var(--gray-7); font-weight: 400; }
+
+/* ── KPI GRID ──────────────────────────────────────────────────── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.kpi-card {
+  background: var(--gray-1);
+  border: 1px solid var(--gray-2);
+  border-radius: 8px;
+  padding: 20px 20px 16px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gray-4), transparent);
+}
+.kpi-card:hover { border-color: var(--gray-4); }
+.kpi-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--gray-5);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.kpi-value {
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1;
+}
+.kpi-value.small { font-size: 20px; }
+.kpi-sub {
+  font-size: 11px;
+  color: var(--gray-5);
+  margin-top: 6px;
+  font-family: var(--mono);
+}
+
+/* ── SECTION CARDS ─────────────────────────────────────────────── */
+.section-card {
+  background: var(--gray-1);
+  border: 1px solid var(--gray-2);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.section-card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--gray-2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.section-card-title {
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-8);
+  letter-spacing: 0.02em;
+}
+.section-card-body { padding: 20px; }
+
+/* ── TABLE ─────────────────────────────────────────────────────── */
+.data-table-wrap { overflow-x: auto; }
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.data-table th {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--gray-5);
+  text-transform: uppercase;
+  text-align: left;
+  padding: 0 16px 10px;
+  border-bottom: 1px solid var(--gray-2);
+}
+.data-table td {
+  padding: 11px 16px;
+  color: var(--gray-7);
+  border-bottom: 1px solid var(--gray-2);
+  vertical-align: middle;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--gray-2); color: var(--gray-9); }
+.data-table .num {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--gray-8);
+}
+.data-table .rank {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--gray-5);
+  width: 32px;
+}
+
+/* ── BAR CHART ─────────────────────────────────────────────────── */
+.bar-chart { display: flex; flex-direction: column; gap: 10px; }
+.bar-row { display: grid; grid-template-columns: 140px 1fr 80px; align-items: center; gap: 12px; }
+.bar-label { font-size: 12px; color: var(--gray-6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-track { background: var(--gray-2); border-radius: 2px; height: 6px; overflow: hidden; }
+.bar-fill { height: 100%; background: var(--gray-5); border-radius: 2px; transition: width 0.6s cubic-bezier(.16,1,.3,1); }
+.bar-fill.accent { background: var(--gray-6); }
+.bar-val { font-family: var(--mono); font-size: 11px; color: var(--gray-6); text-align: right; }
+
+/* ── STATUS BADGES ─────────────────────────────────────────────── */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+.badge-delivered { background: #1e2e1e; color: #6a9a6a; }
+.badge-pending   { background: #2a2a1a; color: #9a9a5a; }
+.badge-cancelled { background: #2e1a1a; color: #9a5a5a; }
+
+/* ── DONUT / STAT PILLS ────────────────────────────────────────── */
+.stat-pill-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.stat-pill {
+  background: var(--gray-2);
+  border: 1px solid var(--gray-3);
+  border-radius: 6px;
+  padding: 10px 16px;
+  text-align: center;
+  flex: 1;
+  min-width: 100px;
+}
+.stat-pill .sp-val {
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--white);
+}
+.stat-pill .sp-lbl {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--gray-5);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 2px;
+}
+
+/* ── LOADING / EMPTY ───────────────────────────────────────────── */
+.loader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--gray-5);
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 28px 0;
+}
+.loader-dots span {
+  display: inline-block;
+  width: 4px; height: 4px;
+  background: var(--gray-4);
+  border-radius: 50%;
+  margin: 0 2px;
+  animation: blink 1.2s infinite;
+}
+.loader-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loader-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes blink { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+
+.empty {
+  text-align: center;
+  padding: 40px;
+  color: var(--gray-5);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+/* ── TWO COL GRID ──────────────────────────────────────────────── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+/* ── TAB SYSTEM ─────────────────────────────────────────────────── */
+.tab-page { display: none; }
+.tab-page.active { display: block; animation: fadeUp 0.25s ease; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── RATING BAR ────────────────────────────────────────────────── */
+.star-row { display: flex; align-items: center; gap: 6px; }
+.stars { color: var(--gray-5); font-size: 12px; letter-spacing: 1px; }
+.stars .lit { color: var(--gray-8); }
+
+/* ── SCROLLABLE TABLE ──────────────────────────────────────────── */
+.scroll-table { max-height: 360px; overflow-y: auto; }
+
+/* ── TIMELINE MINI ──────────────────────────────────────────────── */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.tl-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 80px 90px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background 0.1s;
+  align-items: center;
+}
+.tl-row:hover { background: var(--gray-2); }
+.tl-date { font-family: var(--mono); font-size: 11px; color: var(--gray-5); }
+.tl-bar-wrap { background: var(--gray-2); border-radius: 2px; height: 4px; }
+.tl-bar { height: 100%; background: var(--gray-5); border-radius: 2px; }
+.tl-val { font-family: var(--mono); font-size: 11px; color: var(--gray-7); text-align: right; }
+.tl-sub { font-family: var(--mono); font-size: 10px; color: var(--gray-5); text-align: right; }
+
+/* ── REFRESH BTN ───────────────────────────────────────────────── */
+.btn-refresh {
+  background: var(--gray-2);
+  border: 1px solid var(--gray-3);
+  color: var(--gray-6);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-refresh:hover { background: var(--gray-3); color: var(--gray-8); }
+
+/* ── ERROR ──────────────────────────────────────────────────────── */
+.error-box {
+  background: #1e1212;
+  border: 1px solid #3a2222;
+  border-radius: 6px;
+  padding: 14px 18px;
+  color: #9a6060;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="logo">Commerce<span>IQ</span></div>
+    <div class="topbar-right">
+      <div class="status-dot live" id="statusDot"></div>
+      <span class="topbar-pill" id="dbStatus">connecting…</span>
+      <span class="topbar-pill" id="topClock"></span>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <button class="nav-item active" onclick="navigate('dashboard')">
+        <span class="ico">◈</span> Dashboard
+      </button>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-section">
+      <div class="nav-label">Orders</div>
+      <button class="nav-item" onclick="navigate('order-status')">
+        <span class="ico">◉</span> Order Status
+      </button>
+      <button class="nav-item" onclick="navigate('daily-orders')">
+        <span class="ico">◈</span> Daily Trends
+      </button>
+      <button class="nav-item" onclick="navigate('top-users')">
+        <span class="ico">◈</span> Top Spenders
+      </button>
+      <button class="nav-item" onclick="navigate('repeat-customers')">
+        <span class="ico">◈</span> Repeat Customers
+      </button>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-section">
+      <div class="nav-label">Products</div>
+      <button class="nav-item" onclick="navigate('popular-products')">
+        <span class="ico">◈</span> Top Products
+      </button>
+      <button class="nav-item" onclick="navigate('variants')">
+        <span class="ico">◈</span> Variants
+      </button>
+      <button class="nav-item" onclick="navigate('reviews')">
+        <span class="ico">◈</span> Reviews
+      </button>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-section">
+      <div class="nav-label">Categories</div>
+      <button class="nav-item" onclick="navigate('category-revenue')">
+        <span class="ico">◈</span> Revenue Split
+      </button>
+      <button class="nav-item" onclick="navigate('category-overtime')">
+        <span class="ico">◈</span> Category Trends
+      </button>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-section">
+      <div class="nav-label">Users</div>
+      <button class="nav-item" onclick="navigate('user-activity')">
+        <span class="ico">◈</span> Login Activity
+      </button>
+      <button class="nav-item" onclick="navigate('city-revenue')">
+        <span class="ico">◈</span> City Revenue
+      </button>
+      <button class="nav-item" onclick="navigate('inactive-users')">
+        <span class="ico">◈</span> Inactive Users
+      </button>
+      <button class="nav-item" onclick="navigate('no-orders')">
+        <span class="ico">◈</span> Zero Orders
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main" id="mainArea">
+
+    <!-- ── DASHBOARD ──────────────────────────────── -->
+    <div class="tab-page active" id="page-dashboard">
+      <div class="page-header">
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub">Real-time snapshot — all time</div>
+      </div>
+
+      <div class="sql-box" id="sql-dashboard">
+        <div class="sql-box-label">SQL — Active Queries</div>
+        <pre><span class="sql-keyword">SELECT</span> SUM(total_amount) <span class="sql-keyword">FROM</span> orders;
+<span class="sql-keyword">SELECT</span> COUNT(*) <span class="sql-keyword">FROM</span> orders;
+<span class="sql-keyword">SELECT</span> COUNT(*) <span class="sql-keyword">FROM</span> users;
+<span class="sql-keyword">SELECT</span> AVG(total_amount) <span class="sql-keyword">FROM</span> orders;
+<span class="sql-keyword">SELECT</span> COUNT(*) <span class="sql-keyword">FROM</span> orders <span class="sql-keyword">WHERE</span> status=<em>'Pending'</em>;</pre>
+      </div>
+
+      <div class="kpi-grid" id="kpiGrid">
+        <div class="loader"><div class="loader-dots"><span></span><span></span><span></span></div> loading…</div>
+      </div>
+
+      <div class="two-col">
+        <div class="section-card">
+          <div class="section-card-header">
+            <div class="section-card-title">Order Status Breakdown</div>
+          </div>
+          <div class="section-card-body" id="statusBreakdown">
+            <div class="loader"><div class="loader-dots"><span></span><span></span><span></span></div></div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-header">
+            <div class="section-card-title">Quick Metrics</div>
+          </div>
+          <div class="section-card-body" id="quickMetrics">
+            <div class="loader"><div class="loader-dots"><span></span><span></span><span></span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ORDER STATUS ────────────────────────────── -->
+    <div class="tab-page" id="page-order-status">
+      <div class="page-header">
+        <div class="page-title">Order Status</div>
+        <div class="page-sub">Distribution across all order states</div>
+      </div>
+      <div class="sql-box">
+        <div class="sql-box-label">SQL</div>
+        <pre><span class="sql-keyword">SELECT</span> status, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> count
+<span class="sql-keyword">FROM</span> orders
+<span class="sql-keyword">GROUP BY</span> status;</pre>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title">Orders by Status</div>
+          <button class="btn-refresh" onclick="loadOrderStatus()">↻ refresh</button>
+        </div>
+        <div class="section-card-body" id="orderStatusBody">
+          <div class="loader"><div class="loader-dots"><span></span><span></span><span></span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DAILY ORDERS ────────────────────────────── -->
+    <div class="tab-page" id="page-daily-orders">
+      <div class="page-header">
+        <div class="page-title">Daily Trends</div>
+        <div class="page-sub">Orders and revenue per day</div>
+      </div>
+      <div class="sql-box">
+        <div class="sql-box-label">SQL</div>
+        <pre><span class="sql-keyword">SELECT</span> <span class="sql-keyword">DATE</span>(order_date) <span class="sql-keyword">AS</span> date,
+       <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> orders,
+       <span class="sql-keyword">SUM</span>(total_amount) <span class="sql-keyword">AS</span> revenue
+<span class="sql-keyword">FROM</span> orders
+<span class="sql-keyword">GROUP BY</span> <span class="sql-keyword">DATE</span>(order_date)
+<span class="sql-keyword">ORDER BY</span> date;</pre>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title">Revenue &amp; Orders by Day</div>
+          <button class="btn-refresh" onclick="loadDailyOrders()">↻ refresh</button>
+        </div>
+        <div class="section-card-body" id="dailyOrdersBody">
+          <div class="loader"><div class="loader-dots"><span></span><span></span><span></span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TOP USERS ────────────────────────────────── -->
+    <div class="tab-page" id="page-top-users">
+      <div class="page-header">
+        <div class="page-title">Top Spenders</div>
+        <div class="page-sub">Top 10 users by total spend</div>
+      </div>
+      <div class="sql-box">
+        <div class="sql-box-label">SQL</div>
+        <pre><span class="sql-keyword">SELECT</span> u.name, u.email, <span class="sql-keyword">COUNT</span>(o.order_id) <span class="sql-keyword">AS</span> orders,
+       <span class="sql-keyword">SUM</span>(o.total_amount) <span class="sql-keyword">AS</span> spend
+<span class="sql-keyword">FROM</span> orders o
+<span class="sql-keyword">JOIN</span> users u <span class="sql-keyword">ON</span> o.user_id = u.user_id
+<span class="sql-keyword">GROUP BY</span> o.user_id
+<span class="sql-keyword">ORDER BY</span> spend <span class="sql-keyword">DESC LIMIT</span> 10;</pre>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title">Top 10 Users by Spend</div>
+        </div>
+        <div class="section-card-body" id="topUsersBody">
+          <div class="loader"><div class="loader-dots"><span></span><span></span><span></span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── REPEAT CUSTOMERS ─────────────────────────── -->
+    <div class="tab-page" id="page-repeat-customers">
+      <div class="page-header">
+        <div class="page-title">Repeat Customers</div>
+        <div class="page-sub">Users with more than one order</div>
+      </div>
+      <div class="sql-box">
+        <div class="sql-box-label">SQL</div>
+        <pre><span class="sql-keyword">SELECT</span> user_id, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> order_count
+<span class="sql-keyword">FROM</span> orders
+<span class="sql-keyword">GROUP BY</span> user_id
+<span class="sql-keyword">HAVING COUNT</span>(*) &gt; 1
+<span class="sql-keyword">ORDER BY</span> order_count <span class="sql-keyword">DESC</span>;</pre>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title">Repeat Customers</div>
+        </div>
+        <div class="section-card-body" id="repeatBody">
+          <div class="loader"><div class="loader-dots"><span></span><span></span><span></span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── POPULAR PRODUCTS ─────────────────────────── -->
+    <div class="tab-page" id="page-popular-products">
+      <div class="page-header">
+        <div class="page-title">Top Products</div>
+        <div class="page-sub">Ranked by units sold</div>
+      </div>
+      <div class="sql-box">
+        <div class="sql-box-label">SQL</div>
+        <pre><span class="sql-keyword">SELECT</span> p.product_name, <span class="sql-keyword">SUM</span>(oi.quantity) <span class="sql-keyword">AS</span> units_sold,
+       <span class="sql-keyword">SUM</span>(oi.quantity * oi.price_at_purchase) <span class="sql-keyword">AS</span> revenue
+<span class="sql-keyword">FROM</span> order_items oi
+<span class="sql-keyword">JOIN</span> product_variants pv <span class="sql-keyword">ON</span> oi.variant_id = pv.variant_id
+<span class="sql-keyword">JOIN</span> products p <span class="sql-keyword">ON</span> pv.product_id = p.product_id
+<span class="sql-keyword">GROUP BY</span> p.product_name
+<span class="sql-keyword">ORDER BY</span> units_sold <span class="sql-keyword">DESC LIMIT</span> 15;</pre>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title">Top 15 Products by Units Sold</div>
+        </div>
+        <div class="section-card-body" id="popularBody">
+          <div class="loader"><div class="loader-dots"><span></span><span></span><span></span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VARIANTS ─────────────────────────────────── -->
+    <div class="tab-page" id="page-variants">
+      <div class="page-header">
+        <div class="page-title">Variants</div>
+        <div class="page-sub">Sales performance per product variant</div>
+      </div>
+      <div class="sql-box">
+        <div class="sql-box-label">SQL</div>
+        <pre><span class="sql-keyword">SELECT</span> pv.variant_name, <span class="sql-keyword">SUM</span>(oi.quantity) <span class="sql-keyword">AS</span> sales,
+       <span class="sql-keyword">SUM</span>(oi.quantity * oi.price_at_purchase) <span class="sql-keyword">AS</span> revenue
+<span class="sql-keyword">FROM</span> order_items oi
+<span class="sql-keyword">JOIN</span> product_variants pv <span class="sql-keyword">ON</span> oi.variant_id = pv.variant_id
+<span class="sql-keyword">GROUP BY</span> oi.variant_id
+<span class="sql-keyword">ORDER BY</span> sales <span class="sql-keyword">DESC LIMIT</span> 20;</pre>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title">Top Variants by Sales</div>
+        </div>
+        <div class="section-card-body" id="variantsBody">
+          <div class="loader"><div class="loader-dots"><span></span><span></span><span></span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── REVIEWS ──────────────────────────────────── -->
+    <div class="tab-page" id="page-reviews">
+      <div class="page-header">
+        <div class="page-title">Reviews</div>
+        <div class="page-sub">Average ratings and review counts per product</div>
+      </div>
+      <div class="sql-box">
+        <div class="sql-box-label">SQL</div>
+        <pre><span class="sql-keyword">SELECT</span> p.product_name, <span class="sql-keyword">AVG</span>(r.rating) <span class="sql-keyword">AS</span> avg_rating,
+       <span class="sql-keyword">COUNT</span>(r.review_id) <span class="sql-keyword">AS</span> review_count
+<span class="sql-keyword">FROM</span> reviews r
+<span class="sql-keyword">JOIN</span> products p <span class="sql-keyword">ON</span> r.product_id = p.product_id
+<span class="sql-keyword">GROUP BY</span> r.product_id
+<span class="sql-keyword">ORDER BY</span> avg_rating <span class="sql-keyword">DESC</span>;
+
+<span class="sql-keyword">-- Low rated (avg &lt; 3):</span>
+<span class="sql-keyword">HAVING AVG</span>(r.rating) &lt; 3 <span class="sql-keyword">ORDER BY</span> avg_rating <span class="sql-keyword">ASC</span>;</pre>
+      </div>
+      <div class="two-col">
+        <div class="section-card">
+          <div class="section-card-header">
+            <div class="section-card-title">All Reviews</div>
+          </div>
+          <div class="section-card-body" id="reviewsBody">
+            <div class="loader"><div class="loader-dots"><span></span><span></span><span></span></div></div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-header">
+            <div class="section-card-title">Low Rated (&lt; 3★)</div>
+          </div>
+          <div class="section-card-body" id="lowRatedBody">
+            <div class="loader"><div class="loader-dots"><span></span><span></span><span></span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CATEGORY REVENUE ────────────────────────── -->
+    <div class="tab-page" id="page-category-revenue">
+      <div class="page-header">
+        <div class="page-title">Revenue Split</div>
+        <div class="page-sub">Revenue and orders by category</div>
+      </div>
+      <div class="sql-box">
+        <div class="sql-box-label">SQL</div>
+        <pre><span class="sql-keyword">SELECT</span> c.category_name,
+       <span class="sql-keyword">SUM</span>(oi.quantity * oi.price_at_purchase) <span class="sql-keyword">AS</span> revenue,
+       <span class="sql-keyword">COUNT DISTINCT</span>(o.order_id) <span class="sql-keyword">AS</span> orders
+<span class="sql-keyword">FROM</span> order_items oi
+<span class="sql-keyword">JOIN</span> orders o <span class="sql-keyword">ON</span> oi.order_id = o.order_id
+<span class="sql-keyword">JOIN</span> product_variants pv <span class="sql-keyword">ON</span> oi.variant_id = pv.variant_id
+<span class="sql-keyword">JOIN</span> products p <span class="sql-keyword">ON</span> pv.product_id = p.product_id
+<span class="sql-keyword">JOIN</span> categories c <span class="sql-keyword">ON</span> p.category_id = c.category_id
+<span class="sql-keyword">GROUP BY</span> c.category_name <span class="sql-keyword">ORDER BY</span> revenue <span class="sql-keyword">DESC</span>;</pre>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title">Category Revenue</div>
+        </div>
+        <div class="section-card-body" id="categoryRevenueBody">
+          <div class="loader"><div class="loader-dots"><span></span><span></span><span></span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CATEGORY OVERTIME ────────────────────────── -->
+    <div class="tab-page" id="page-category-overtime">
+      <div class="page-header">
+        <div class="page-title">Category Trends</div>
+        <div class="page-sub">Revenue per category over time</div>
+      </div>
+      <div class="sql-box">
+        <div class="sql-box-label">SQL — Gold Query 🔥</div>
+        <pre><span class="sql-keyword">SELECT</span> c.category_name, <span class="sql-keyword">DATE</span>(o.order_date) <span class="sql-keyword">AS</span> date,
+       <span class="sql-keyword">SUM</span>(oi.quantity * oi.price_at_purchase) <span class="sql-keyword">AS</span> revenue
+<span class="sql-keyword">FROM</span> order_items oi
+<span class="sql-keyword">JOIN</span> orders o <span class="sql-keyword">ON</span> oi.order_id = o.order_id
+<span class="sql-keyword">JOIN</span> product_variants pv <span class="sql-keyword">ON</span> oi.variant_id = pv.variant_id
+<span class="sql-keyword">JOIN</span> products p <span class="sql-keyword">ON</span> pv.product_id = p.product_id
+<span class="sql-keyword">JOIN</span> categories c <span class="sql-keyword">ON</span> p.category_id = c.category_id
+<span class="sql-keyword">GROUP BY</span> c.category_name, <span class="sql-keyword">DATE</span>(o.order_date)
+<span class="sql-keyword">ORDER BY</span> date;</pre>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title">Category Revenue Over Time</div>
+        </div>
+        <div class="section-card-body" id="categoryOvertimeBody">
+          <div class="loader"><div class="loader-dots"><span></span><span></span><span></span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── USER ACTIVITY ───────────────────────────── -->
+    <div class="tab-page" id="page-user-activity">
+      <div class="page-header">
+        <div class="page-title">Login Activity</div>
+        <div class="page-sub">Daily active users and login counts</div>
+      </div>
+      <div class="sql-box">
+        <div class="sql-box-label">SQL</div>
+        <pre><span class="sql-keyword">SELECT</span> <span class="sql-keyword">DATE</span>(login_time) <span class="sql-keyword">AS</span> date,
+       <span class="sql-keyword">COUNT DISTINCT</span>(user_id) <span class="sql-keyword">AS</span> active_users,
+       <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> total_logins
+<span class="sql-keyword">FROM</span> user_logins
+<span class="sql-keyword">GROUP BY DATE</span>(login_time)
+<span class="sql-keyword">ORDER BY</span> date;</pre>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title">Daily Active Users</div>
+        </div>
+        <div class="section-card-body" id="userActivityBody">
+          <div class="loader"><div class="loader-dots"><span></span><span></span><span></span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CITY REVENUE ────────────────────────────── -->
+    <div class="tab-page" id="page-city-revenue">
+      <div class="page-header">
+        <div class="page-title">City Revenue</div>
+        <div class="page-sub">User and revenue distribution by city</div>
+      </div>
+      <div class="sql-box">
+        <div class="sql-box-label">SQL</div>
+        <pre><span class="sql-keyword">SELECT</span> city, <span class="sql-keyword">COUNT</span>(*) <span class="sql-keyword">AS</span> user_count,
+       <span class="sql-keyword">SUM</span>(o.total_amount) <span class="sql-keyword">AS</span> total_revenue
+<span class="sql-keyword">FROM</span> users u
+<span class="sql-keyword">LEFT JOIN</span> orders o <span class="sql-keyword">ON</span> u.user_id = o.user_id
+<span class="sql-keyword">GROUP BY</span> city
+<span class="sql-keyword">ORDER BY</span> total_revenue <span class="sql-keyword">DESC</span>;</pre>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title">Revenue by City</div>
+        </div>
+        <div class="section-card-body" id="cityBody">
+          <div class="loader"><div class="loader-dots"><span></span><span></span><span></span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── INACTIVE USERS ──────────────────────────── -->
+    <div class="tab-page" id="page-inactive-users">
+      <div class="page-header">
+        <div class="page-title">Inactive Users</div>
+        <div class="page-sub">Users with no login in the last 30 days</div>
+      </div>
+      <div class="sql-box">
+        <div class="sql-box-label">SQL</div>
+        <pre><span class="sql-keyword">SELECT</span> user_id, <span class="sql-keyword">MAX</span>(login_time) <span class="sql-keyword">AS</span> last_login
+<span class="sql-keyword">FROM</span> user_logins
+<span class="sql-keyword">GROUP BY</span> user_id
+<span class="sql-keyword">HAVING MAX</span>(login_time) &lt; <span class="sql-keyword">NOW</span>() - <span class="sql-keyword">INTERVAL</span> 30 <span class="sql-keyword">DAY</span>
+<span class="sql-keyword">ORDER BY</span> last_login <span class="sql-keyword">ASC</span>;</pre>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title">Inactive Users (30+ days)</div>
+        </div>
+        <div class="section-card-body" id="inactiveBody">
+          <div class="loader"><div class="loader-dots"><span></span><span></span><span></span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── NO ORDERS ────────────────────────────────── -->
+    <div class="tab-page" id="page-no-orders">
+      <div class="page-header">
+        <div class="page-title">Zero Orders</div>
+        <div class="page-sub">Registered users who have never ordered</div>
+      </div>
+      <div class="sql-box">
+        <div class="sql-box-label">SQL</div>
+        <pre><span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> users
+<span class="sql-keyword">WHERE</span> user_id <span class="sql-keyword">NOT IN</span> (
+  <span class="sql-keyword">SELECT</span> user_id <span class="sql-keyword">FROM</span> orders
+);</pre>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title">Users with No Orders</div>
+        </div>
+        <div class="section-card-body" id="noOrdersBody">
+          <div class="loader"><div class="loader-dots"><span></span><span></span><span></span></div></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ── CONFIG ─────────────────────────────────────────────────────────────────────
+// Change this to your deployed backend URL when hosting on Vercel
+// const API = window.location.hostname === 'localhost'
+//   ? 'http://localhost:5000'
+//   : 'https://your-backend.railway.app'; // ← update this
+const API = 'http://localhost:5000';
+
+// ── UTILS ──────────────────────────────────────────────────────────────────────
+const fmt = n => n == null ? '—' : Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+const fmtCur = n => n == null ? '—' : '₹' + Number(n).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+const fmtDate = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : '—';
+
+function loader() {
+  return `<div class="loader"><div class="loader-dots"><span></span><span></span><span></span></div> fetching…</div>`;
+}
+function empty(msg = 'No data') {
+  return `<div class="empty">${msg}</div>`;
+}
+function err(e) {
+  return `<div class="error-box">Error: ${e}</div>`;
+}
+
+async function apiFetch(path) {
+  const res = await fetch(API + path);
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return res.json();
+}
+
+// ── CLOCK ──────────────────────────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  document.getElementById('topClock').textContent =
+    now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── NAV ────────────────────────────────────────────────────────────────────────
+const loaders = {};
+function navigate(id) {
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b => {
+    if (b.getAttribute('onclick')?.includes(id)) b.classList.add('active');
+  });
+  if (!loaders[id]) { loaders[id] = true; loadPage(id); }
+}
+
+function loadPage(id) {
+  const map = {
+    'dashboard': loadDashboard,
+    'order-status': loadOrderStatus,
+    'daily-orders': loadDailyOrders,
+    'top-users': loadTopUsers,
+    'repeat-customers': loadRepeat,
+    'popular-products': loadPopular,
+    'variants': loadVariants,
+    'reviews': loadReviews,
+    'category-revenue': loadCategoryRevenue,
+    'category-overtime': loadCategoryOvertime,
+    'user-activity': loadUserActivity,
+    'city-revenue': loadCityRevenue,
+    'inactive-users': loadInactive,
+    'no-orders': loadNoOrders,
+  };
+  if (map[id]) map[id]();
+}
+
+// ── DASHBOARD ──────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const d = await apiFetch('/api/dashboard');
+    document.getElementById('dbStatus').textContent = 'connected';
+    document.getElementById('statusDot').classList.add('live');
+
+    const kpis = [
+      { label: 'Total Revenue', value: fmtCur(d.total_revenue), sub: 'all orders' },
+      { label: 'Total Orders', value: fmt(d.total_orders), sub: 'all time' },
+      { label: 'Total Users', value: fmt(d.total_users), sub: 'registered' },
+      { label: 'Avg Order Value', value: fmtCur(d.avg_order_value), sub: 'per order' },
+      { label: 'Total Products', value: fmt(d.total_products), sub: 'in catalogue' },
+      { label: 'Orders (7d)', value: fmt(d.orders_last7), sub: 'last 7 days' },
+      { label: 'Avg Items/Order', value: Number(d.avg_items_per_order||0).toFixed(1), sub: 'per order' },
+    ];
+    document.getElementById('kpiGrid').innerHTML = kpis.map(k => `
+      <div class="kpi-card">
+        <div class="kpi-label">${k.label}</div>
+        <div class="kpi-value ${k.value.length > 8 ? 'small' : ''}">${k.value}</div>
+        <div class="kpi-sub">${k.sub}</div>
+      </div>`).join('');
+
+    document.getElementById('statusBreakdown').innerHTML = `
+      <div class="stat-pill-row">
+        <div class="stat-pill">
+          <div class="sp-val">${fmt(d.pending_orders)}</div>
+          <div class="sp-lbl">Pending</div>
+        </div>
+        <div class="stat-pill">
+          <div class="sp-val">${fmt(d.delivered_orders)}</div>
+          <div class="sp-lbl">Delivered</div>
+        </div>
+        <div class="stat-pill">
+          <div class="sp-val">${fmt(d.cancelled_orders)}</div>
+          <div class="sp-lbl">Cancelled</div>
+        </div>
+      </div>`;
+
+    const total = (d.pending_orders||0) + (d.delivered_orders||0) + (d.cancelled_orders||0);
+    const bars = [
+      { label: 'Delivered', val: d.delivered_orders, pct: total ? (d.delivered_orders/total*100) : 0 },
+      { label: 'Pending',   val: d.pending_orders,   pct: total ? (d.pending_orders/total*100) : 0 },
+      { label: 'Cancelled', val: d.cancelled_orders,  pct: total ? (d.cancelled_orders/total*100) : 0 },
+    ];
+    document.getElementById('quickMetrics').innerHTML = `<div class="bar-chart">` +
+      bars.map(b => `<div class="bar-row">
+        <div class="bar-label">${b.label}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${b.pct.toFixed(1)}%"></div></div>
+        <div class="bar-val">${b.pct.toFixed(1)}%</div>
+      </div>`).join('') + `</div>`;
+
+  } catch(e) {
+    document.getElementById('dbStatus').textContent = 'error';
+    document.getElementById('kpiGrid').innerHTML = err(e.message);
+  }
+}
+
+// ── ORDER STATUS ───────────────────────────────────────────────────────────────
+async function loadOrderStatus() {
+  document.getElementById('orderStatusBody').innerHTML = loader();
+  try {
+    const { data } = await apiFetch('/api/orders/status');
+    const total = data.reduce((s,r) => s + Number(r.count), 0);
+    const html = `<div class="bar-chart">` + data.map(r => {
+      const pct = total ? (r.count/total*100) : 0;
+      const cls = r.status === 'Delivered' ? 'accent' : '';
+      return `<div class="bar-row">
+        <div class="bar-label"><span class="badge badge-${r.status.toLowerCase()}">${r.status}</span></div>
+        <div class="bar-track"><div class="bar-fill ${cls}" style="width:${pct.toFixed(1)}%"></div></div>
+        <div class="bar-val">${fmt(r.count)} <span style="color:var(--gray-5)">(${pct.toFixed(0)}%)</span></div>
+      </div>`;
+    }).join('') + `</div>`;
+    document.getElementById('orderStatusBody').innerHTML = html || empty();
+  } catch(e) { document.getElementById('orderStatusBody').innerHTML = err(e.message); }
+}
+
+// ── DAILY ORDERS ───────────────────────────────────────────────────────────────
+async function loadDailyOrders() {
+  document.getElementById('dailyOrdersBody').innerHTML = loader();
+  try {
+    const { data } = await apiFetch('/api/orders/daily');
+    if (!data.length) { document.getElementById('dailyOrdersBody').innerHTML = empty(); return; }
+    const maxRev = Math.max(...data.map(r => r.revenue||0));
+    const maxOrd = Math.max(...data.map(r => r.orders||0));
+    const html = `<div class="timeline">` + data.slice(-30).reverse().map(r => `
+      <div class="tl-row">
+        <div class="tl-date">${fmtDate(r.date)}</div>
+        <div class="tl-bar-wrap"><div class="tl-bar" style="width:${maxRev ? (r.revenue/maxRev*100).toFixed(1) : 0}%"></div></div>
+        <div class="tl-val">${fmtCur(r.revenue)}</div>
+        <div class="tl-sub">${fmt(r.orders)} orders</div>
+      </div>`).join('') + `</div>`;
+    document.getElementById('dailyOrdersBody').innerHTML = html;
+  } catch(e) { document.getElementById('dailyOrdersBody').innerHTML = err(e.message); }
+}
+
+// ── TOP USERS ──────────────────────────────────────────────────────────────────
+async function loadTopUsers() {
+  document.getElementById('topUsersBody').innerHTML = loader();
+  try {
+    const { data } = await apiFetch('/api/orders/top-users');
+    if (!data.length) { document.getElementById('topUsersBody').innerHTML = empty(); return; }
+    const maxSpend = Math.max(...data.map(r => r.spend||0));
+    document.getElementById('topUsersBody').innerHTML = `
+      <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr>
+          <th>#</th><th>Name</th><th>Email</th><th>Orders</th><th>Total Spend</th><th>Share</th>
+        </tr></thead>
+        <tbody>${data.map((r,i) => `<tr>
+          <td class="rank">${i+1}</td>
+          <td>${r.name||'—'}</td>
+          <td style="color:var(--gray-5);font-size:12px">${r.email||'—'}</td>
+          <td class="num">${fmt(r.orders)}</td>
+          <td class="num">${fmtCur(r.spend)}</td>
+          <td><div class="bar-track" style="width:80px"><div class="bar-fill" style="width:${maxSpend ? (r.spend/maxSpend*100).toFixed(0) : 0}%"></div></div></td>
+        </tr>`).join('')}</tbody>
+      </table></div>`;
+  } catch(e) { document.getElementById('topUsersBody').innerHTML = err(e.message); }
+}
+
+// ── REPEAT CUSTOMERS ──────────────────────────────────────────────────────────
+async function loadRepeat() {
+  document.getElementById('repeatBody').innerHTML = loader();
+  try {
+    const { data } = await apiFetch('/api/orders/repeat-customers');
+    if (!data.length) { document.getElementById('repeatBody').innerHTML = empty('No repeat customers found'); return; }
+    document.getElementById('repeatBody').innerHTML = `
+      <div class="data-table-wrap scroll-table">
+      <table class="data-table">
+        <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Orders</th></tr></thead>
+        <tbody>${data.map((r,i) => `<tr>
+          <td class="rank">${i+1}</td>
+          <td>${r.name||'—'}</td>
+          <td style="color:var(--gray-5);font-size:12px">${r.email||'—'}</td>
+          <td class="num">${fmt(r.order_count)}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>`;
+  } catch(e) { document.getElementById('repeatBody').innerHTML = err(e.message); }
+}
+
+// ── POPULAR PRODUCTS ──────────────────────────────────────────────────────────
+async function loadPopular() {
+  document.getElementById('popularBody').innerHTML = loader();
+  try {
+    const { data } = await apiFetch('/api/products/popular');
+    if (!data.length) { document.getElementById('popularBody').innerHTML = empty(); return; }
+    const maxSold = Math.max(...data.map(r => r.units_sold||0));
+    document.getElementById('popularBody').innerHTML = `
+      <div class="bar-chart">` + data.map((r,i) => `
+        <div class="bar-row">
+          <div class="bar-label" title="${r.product_name}">${i+1}. ${r.product_name}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${maxSold ? (r.units_sold/maxSold*100).toFixed(1) : 0}%"></div></div>
+          <div class="bar-val">${fmt(r.units_sold)} <span style="color:var(--gray-5);font-size:10px">units</span></div>
+        </div>`).join('') + `</div>`;
+  } catch(e) { document.getElementById('popularBody').innerHTML = err(e.message); }
+}
+
+// ── VARIANTS ──────────────────────────────────────────────────────────────────
+async function loadVariants() {
+  document.getElementById('variantsBody').innerHTML = loader();
+  try {
+    const { data } = await apiFetch('/api/products/variants');
+    if (!data.length) { document.getElementById('variantsBody').innerHTML = empty(); return; }
+    document.getElementById('variantsBody').innerHTML = `
+      <div class="data-table-wrap scroll-table">
+      <table class="data-table">
+        <thead><tr><th>#</th><th>Product</th><th>Variant</th><th>Units Sold</th><th>Revenue</th></tr></thead>
+        <tbody>${data.map((r,i) => `<tr>
+          <td class="rank">${i+1}</td>
+          <td style="font-size:12px">${r.product_name||'—'}</td>
+          <td style="color:var(--gray-6);font-size:12px">${r.variant_name||'—'}</td>
+          <td class="num">${fmt(r.sales)}</td>
+          <td class="num">${fmtCur(r.revenue)}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>`;
+  } catch(e) { document.getElementById('variantsBody').innerHTML = err(e.message); }
+}
+
+// ── REVIEWS ───────────────────────────────────────────────────────────────────
+function stars(avg) {
+  const full = Math.round(avg||0);
+  return Array.from({length:5},(_,i) => `<span class="${i<full?'lit':''}">★</span>`).join('');
+}
+async function loadReviews() {
+  document.getElementById('reviewsBody').innerHTML = loader();
+  document.getElementById('lowRatedBody').innerHTML = loader();
+  try {
+    const [all, low] = await Promise.all([
+      apiFetch('/api/products/reviews'),
+      apiFetch('/api/products/low-rated')
+    ]);
+    document.getElementById('reviewsBody').innerHTML = all.data.length ?
+      `<div class="data-table-wrap scroll-table"><table class="data-table">
+        <thead><tr><th>Product</th><th>Rating</th><th>Reviews</th></tr></thead>
+        <tbody>${all.data.map(r => `<tr>
+          <td style="font-size:12px">${r.product_name}</td>
+          <td><div class="star-row"><div class="stars">${stars(r.avg_rating)}</div> <span class="num" style="font-size:11px">${Number(r.avg_rating).toFixed(1)}</span></div></td>
+          <td class="num">${fmt(r.review_count)}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>` : empty();
+
+    document.getElementById('lowRatedBody').innerHTML = low.data.length ?
+      `<div class="data-table-wrap"><table class="data-table">
+        <thead><tr><th>Product</th><th>Avg</th><th>Reviews</th></tr></thead>
+        <tbody>${low.data.map(r => `<tr>
+          <td style="font-size:12px;color:var(--gray-6)">${r.product_name}</td>
+          <td><span style="color:#9a5a5a;font-family:var(--mono)">${Number(r.avg_rating).toFixed(1)}</span></td>
+          <td class="num">${fmt(r.review_count)}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>` : empty('No low-rated products');
+  } catch(e) {
+    document.getElementById('reviewsBody').innerHTML = err(e.message);
+    document.getElementById('lowRatedBody').innerHTML = err(e.message);
+  }
+}
+
+// ── CATEGORY REVENUE ──────────────────────────────────────────────────────────
+async function loadCategoryRevenue() {
+  document.getElementById('categoryRevenueBody').innerHTML = loader();
+  try {
+    const { data } = await apiFetch('/api/categories/revenue');
+    if (!data.length) { document.getElementById('categoryRevenueBody').innerHTML = empty(); return; }
+    const maxRev = Math.max(...data.map(r => r.revenue||0));
+    document.getElementById('categoryRevenueBody').innerHTML = `<div class="bar-chart">` +
+      data.map(r => `<div class="bar-row">
+        <div class="bar-label">${r.category_name}</div>
+        <div class="bar-track"><div class="bar-fill accent" style="width:${maxRev ? (r.revenue/maxRev*100).toFixed(1) : 0}%"></div></div>
+        <div class="bar-val">${fmtCur(r.revenue)}</div>
+      </div>`).join('') + `</div>`;
+  } catch(e) { document.getElementById('categoryRevenueBody').innerHTML = err(e.message); }
+}
+
+// ── CATEGORY OVERTIME ─────────────────────────────────────────────────────────
+async function loadCategoryOvertime() {
+  document.getElementById('categoryOvertimeBody').innerHTML = loader();
+  try {
+    const { data } = await apiFetch('/api/categories/overtime');
+    if (!data.length) { document.getElementById('categoryOvertimeBody').innerHTML = empty(); return; }
+    // Group by category
+    const cats = {};
+    data.forEach(r => {
+      if (!cats[r.category_name]) cats[r.category_name] = [];
+      cats[r.category_name].push(r);
+    });
+    let html = '';
+    for (const [cat, rows] of Object.entries(cats)) {
+      const maxR = Math.max(...rows.map(r => r.revenue||0));
+      html += `<div style="margin-bottom:20px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--gray-5);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">${cat}</div>
+        <div class="timeline">` +
+        rows.slice(-10).reverse().map(r => `<div class="tl-row">
+          <div class="tl-date">${fmtDate(r.date)}</div>
+          <div class="tl-bar-wrap"><div class="tl-bar" style="width:${maxR ? (r.revenue/maxR*100).toFixed(0) : 0}%"></div></div>
+          <div class="tl-val">${fmtCur(r.revenue)}</div>
+        </div>`).join('') + `</div></div>`;
+    }
+    document.getElementById('categoryOvertimeBody').innerHTML = html;
+  } catch(e) { document.getElementById('categoryOvertimeBody').innerHTML = err(e.message); }
+}
+
+// ── USER ACTIVITY ─────────────────────────────────────────────────────────────
+async function loadUserActivity() {
+  document.getElementById('userActivityBody').innerHTML = loader();
+  try {
+    const { data } = await apiFetch('/api/users/activity');
+    if (!data.length) { document.getElementById('userActivityBody').innerHTML = empty(); return; }
+    const maxDAU = Math.max(...data.map(r => r.active_users||0));
+    document.getElementById('userActivityBody').innerHTML = `<div class="timeline">` +
+      data.slice(-30).reverse().map(r => `<div class="tl-row">
+        <div class="tl-date">${fmtDate(r.date)}</div>
+        <div class="tl-bar-wrap"><div class="tl-bar" style="width:${maxDAU ? (r.active_users/maxDAU*100).toFixed(0) : 0}%"></div></div>
+        <div class="tl-val">${fmt(r.active_users)} DAU</div>
+        <div class="tl-sub">${fmt(r.total_logins)} logins</div>
+      </div>`).join('') + `</div>`;
+  } catch(e) { document.getElementById('userActivityBody').innerHTML = err(e.message); }
+}
+
+// ── CITY REVENUE ──────────────────────────────────────────────────────────────
+async function loadCityRevenue() {
+  document.getElementById('cityBody').innerHTML = loader();
+  try {
+    const { data } = await apiFetch('/api/users/city');
+    if (!data.length) { document.getElementById('cityBody').innerHTML = empty(); return; }
+    const maxR = Math.max(...data.map(r => r.total_revenue||0));
+    document.getElementById('cityBody').innerHTML = `<div class="bar-chart">` +
+      data.map(r => `<div class="bar-row">
+        <div class="bar-label">${r.city||'Unknown'} <span style="color:var(--gray-5);font-size:10px">(${fmt(r.user_count)})</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${maxR ? (r.total_revenue/maxR*100).toFixed(1) : 0}%"></div></div>
+        <div class="bar-val">${fmtCur(r.total_revenue)}</div>
+      </div>`).join('') + `</div>`;
+  } catch(e) { document.getElementById('cityBody').innerHTML = err(e.message); }
+}
+
+// ── INACTIVE USERS ────────────────────────────────────────────────────────────
+async function loadInactive() {
+  document.getElementById('inactiveBody').innerHTML = loader();
+  try {
+    const { data } = await apiFetch('/api/users/inactive');
+    if (!data.length) { document.getElementById('inactiveBody').innerHTML = empty('No inactive users — great retention!'); return; }
+    document.getElementById('inactiveBody').innerHTML = `
+      <div class="data-table-wrap scroll-table"><table class="data-table">
+        <thead><tr><th>Name</th><th>Email</th><th>City</th><th>Last Login</th></tr></thead>
+        <tbody>${data.map(r => `<tr>
+          <td>${r.name||'—'}</td>
+          <td style="color:var(--gray-5);font-size:12px">${r.email||'—'}</td>
+          <td style="color:var(--gray-6)">${r.city||'—'}</td>
+          <td style="font-family:var(--mono);font-size:11px;color:var(--gray-5)">${fmtDate(r.last_login)}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>`;
+  } catch(e) { document.getElementById('inactiveBody').innerHTML = err(e.message); }
+}
+
+// ── NO ORDERS ─────────────────────────────────────────────────────────────────
+async function loadNoOrders() {
+  document.getElementById('noOrdersBody').innerHTML = loader();
+  try {
+    const { data } = await apiFetch('/api/orders/no-orders-users');
+    if (!data.length) { document.getElementById('noOrdersBody').innerHTML = empty('All users have placed at least one order.'); return; }
+    document.getElementById('noOrdersBody').innerHTML = `
+      <div class="data-table-wrap scroll-table"><table class="data-table">
+        <thead><tr><th>Name</th><th>Email</th><th>City</th><th>Signup</th></tr></thead>
+        <tbody>${data.map(r => `<tr>
+          <td>${r.name||'—'}</td>
+          <td style="color:var(--gray-5);font-size:12px">${r.email||'—'}</td>
+          <td style="color:var(--gray-6)">${r.city||'—'}</td>
+          <td style="font-family:var(--mono);font-size:11px;color:var(--gray-5)">${fmtDate(r.signup_date)}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>`;
+  } catch(e) { document.getElementById('noOrdersBody').innerHTML = err(e.message); }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+loadDashboard();
+loaders['dashboard'] = true;
+</script>
+</body>
+</html>
