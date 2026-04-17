@@ -324,7 +324,7 @@ body {
   letter-spacing: 0.06em;
 }
 .badge-delivered { background: #1e2e1e; color: #6a9a6a; }
-.badge-pending   { background: #2a2a1a; color: #9a9a5a; }
+.badge-processing   { background: #2a2a1a; color: #9a9a5a; }
 .badge-cancelled { background: #2e1a1a; color: #9a5a5a; }
 
 /* ── DONUT / STAT PILLS ────────────────────────────────────────── */
@@ -464,12 +464,7 @@ body {
 
   <!-- TOPBAR -->
   <header class="topbar">
-    <div class="logo">Commerce<span>IQ</span></div>
-    <div class="topbar-right">
-      <div class="status-dot live" id="statusDot"></div>
-      <span class="topbar-pill" id="dbStatus">connecting…</span>
-      <span class="topbar-pill" id="topClock"></span>
-    </div>
+    <div class="logo">ECom<span>lytics</span></div>
   </header>
 
   <!-- SIDEBAR -->
@@ -553,7 +548,7 @@ body {
 <span class="sql-keyword">SELECT</span> COUNT(*) <span class="sql-keyword">FROM</span> orders;
 <span class="sql-keyword">SELECT</span> COUNT(*) <span class="sql-keyword">FROM</span> users;
 <span class="sql-keyword">SELECT</span> AVG(total_amount) <span class="sql-keyword">FROM</span> orders;
-<span class="sql-keyword">SELECT</span> COUNT(*) <span class="sql-keyword">FROM</span> orders <span class="sql-keyword">WHERE</span> status=<em>'Pending'</em>;</pre>
+<span class="sql-keyword">SELECT</span> COUNT(*) <span class="sql-keyword">FROM</span> orders <span class="sql-keyword">WHERE</span> status=<em>'Processing'</em>;</pre>
       </div>
 
       <div class="kpi-grid" id="kpiGrid">
@@ -928,9 +923,8 @@ body {
 // Change this to your deployed backend URL when hosting on Vercel
 // const API = window.location.hostname === 'localhost'
 //   ? 'http://localhost:5000'
-//   : 'https://your-backend.railway.app'; // ← update this
+//   : '//update'; // ← update this
 const API = 'http://localhost:5000';
-
 // ── UTILS ──────────────────────────────────────────────────────────────────────
 const fmt = n => n == null ? '—' : Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 });
 const fmtCur = n => n == null ? '—' : '₹' + Number(n).toLocaleString('en-IN', { maximumFractionDigits: 0 });
@@ -951,15 +945,6 @@ async function apiFetch(path) {
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   return res.json();
 }
-
-// ── CLOCK ──────────────────────────────────────────────────────────────────────
-function updateClock() {
-  const now = new Date();
-  document.getElementById('topClock').textContent =
-    now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-}
-setInterval(updateClock, 1000);
-updateClock();
 
 // ── NAV ────────────────────────────────────────────────────────────────────────
 const loaders = {};
@@ -997,8 +982,6 @@ function loadPage(id) {
 async function loadDashboard() {
   try {
     const d = await apiFetch('/api/dashboard');
-    document.getElementById('dbStatus').textContent = 'connected';
-    document.getElementById('statusDot').classList.add('live');
 
     const kpis = [
       { label: 'Total Revenue', value: fmtCur(d.total_revenue), sub: 'all orders' },
@@ -1018,25 +1001,28 @@ async function loadDashboard() {
 
     document.getElementById('statusBreakdown').innerHTML = `
       <div class="stat-pill-row">
-        <div class="stat-pill">
-          <div class="sp-val">${fmt(d.pending_orders)}</div>
-          <div class="sp-lbl">Pending</div>
+        <div class="stat-pill" style="border-color:#1e3a1e">
+          <div class="sp-val" style="color:#6a9a6a">${fmt(d.delivered_orders)}</div>
+          <div class="sp-lbl" style="color:#4a7a4a">Delivered</div>
         </div>
-        <div class="stat-pill">
-          <div class="sp-val">${fmt(d.delivered_orders)}</div>
-          <div class="sp-lbl">Delivered</div>
+        <div class="stat-pill" style="border-color:#2a2a1a">
+          <div class="sp-val" style="color:#b0a050">${fmt(d.inprogress_orders)}</div>
+          <div class="sp-lbl" style="color:#7a7a3a">In Progress</div>
         </div>
-        <div class="stat-pill">
-          <div class="sp-val">${fmt(d.cancelled_orders)}</div>
-          <div class="sp-lbl">Cancelled</div>
+        <div class="stat-pill" style="border-color:#3a1a1a">
+          <div class="sp-val" style="color:#9a5a5a">${fmt(d.cancelled_orders)}</div>
+          <div class="sp-lbl" style="color:#7a3a3a">Cancelled</div>
         </div>
+      </div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--gray-5);margin-top:4px;padding:0 2px">
+        In Progress = Processing + Shipped
       </div>`;
 
-    const total = (d.pending_orders||0) + (d.delivered_orders||0) + (d.cancelled_orders||0);
+    const total = (d.inprogress_orders||0) + (d.delivered_orders||0) + (d.cancelled_orders||0);
     const bars = [
-      { label: 'Delivered', val: d.delivered_orders, pct: total ? (d.delivered_orders/total*100) : 0 },
-      { label: 'Pending',   val: d.pending_orders,   pct: total ? (d.pending_orders/total*100) : 0 },
-      { label: 'Cancelled', val: d.cancelled_orders,  pct: total ? (d.cancelled_orders/total*100) : 0 },
+      { label: 'Delivered',   val: d.delivered_orders,  pct: total ? (d.delivered_orders/total*100)  : 0 },
+      { label: 'In Progress', val: d.inprogress_orders,  pct: total ? (d.inprogress_orders/total*100)  : 0 },
+      { label: 'Cancelled',   val: d.cancelled_orders,   pct: total ? (d.cancelled_orders/total*100)  : 0 },
     ];
     document.getElementById('quickMetrics').innerHTML = `<div class="bar-chart">` +
       bars.map(b => `<div class="bar-row">
@@ -1046,7 +1032,6 @@ async function loadDashboard() {
       </div>`).join('') + `</div>`;
 
   } catch(e) {
-    document.getElementById('dbStatus').textContent = 'error';
     document.getElementById('kpiGrid').innerHTML = err(e.message);
   }
 }
