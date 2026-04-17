@@ -41,8 +41,8 @@ app.get('/api/dashboard', async (req, res) => {
     const [[{ total_products }]] = await pool.execute(
       'SELECT COUNT(*) AS total_products FROM products'
     );
-    const [[{ pending_orders }]] = await pool.execute(
-      "SELECT COUNT(*) AS pending_orders FROM orders WHERE status='Pending'"
+    const [[{ inprogress_orders }]] = await pool.execute(
+      "SELECT COUNT(*) AS inprogress_orders FROM orders WHERE status IN ('Processing','Shipped')"
     );
     const [[{ delivered_orders }]] = await pool.execute(
       "SELECT COUNT(*) AS delivered_orders FROM orders WHERE status='Delivered'"
@@ -59,7 +59,7 @@ app.get('/api/dashboard', async (req, res) => {
 
     res.json({
       total_revenue, total_orders, total_users, avg_order_value,
-      total_products, pending_orders, delivered_orders, cancelled_orders,
+      total_products, inprogress_orders, delivered_orders, cancelled_orders,
       orders_last7, avg_items_per_order,
       queries: {
         total_revenue: 'SELECT SUM(total_amount) FROM orders',
@@ -67,7 +67,8 @@ app.get('/api/dashboard', async (req, res) => {
         total_users: 'SELECT COUNT(*) FROM users',
         avg_order_value: 'SELECT AVG(total_amount) FROM orders',
         total_products: 'SELECT COUNT(*) FROM products',
-        pending_orders: "SELECT COUNT(*) FROM orders WHERE status='Pending'",
+        inprogress_orders: "SELECT COUNT(*) FROM orders WHERE status IN ('Processing','Shipped')",
+        processing_orders: "SELECT COUNT(*) FROM orders WHERE status='Processing'",
         delivered_orders: "SELECT COUNT(*) FROM orders WHERE status='Delivered'",
         cancelled_orders: "SELECT COUNT(*) FROM orders WHERE status='Cancelled'",
         orders_last7: 'SELECT COUNT(*) FROM orders WHERE order_date >= NOW() - INTERVAL 7 DAY',
