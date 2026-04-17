@@ -479,7 +479,7 @@ body {
     <div class="nav-section">
       <div class="nav-label">Orders</div>
       <button class="nav-item" onclick="navigate('order-status')">
-        <span class="ico">◉</span> Order Status
+        <span class="ico">◈</span> Order Status
       </button>
       <button class="nav-item" onclick="navigate('daily-orders')">
         <span class="ico">◈</span> Daily Trends
@@ -539,11 +539,11 @@ body {
     <div class="tab-page active" id="page-dashboard">
       <div class="page-header">
         <div class="page-title">Dashboard</div>
-        <div class="page-sub">Real-time snapshot — all time</div>
+        
       </div>
 
       <div class="sql-box" id="sql-dashboard">
-        <div class="sql-box-label">SQL — Active Queries</div>
+        <div class="sql-box-label">SQL</div>
         <pre><span class="sql-keyword">SELECT</span> SUM(total_amount) <span class="sql-keyword">FROM</span> orders;
 <span class="sql-keyword">SELECT</span> COUNT(*) <span class="sql-keyword">FROM</span> orders;
 <span class="sql-keyword">SELECT</span> COUNT(*) <span class="sql-keyword">FROM</span> users;
@@ -579,7 +579,6 @@ body {
     <div class="tab-page" id="page-order-status">
       <div class="page-header">
         <div class="page-title">Order Status</div>
-        <div class="page-sub">Distribution across all order states</div>
       </div>
       <div class="sql-box">
         <div class="sql-box-label">SQL</div>
@@ -602,7 +601,6 @@ body {
     <div class="tab-page" id="page-daily-orders">
       <div class="page-header">
         <div class="page-title">Daily Trends</div>
-        <div class="page-sub">Orders and revenue per day</div>
       </div>
       <div class="sql-box">
         <div class="sql-box-label">SQL</div>
@@ -628,7 +626,6 @@ body {
     <div class="tab-page" id="page-top-users">
       <div class="page-header">
         <div class="page-title">Top Spenders</div>
-        <div class="page-sub">Top 10 users by total spend</div>
       </div>
       <div class="sql-box">
         <div class="sql-box-label">SQL</div>
@@ -653,7 +650,6 @@ body {
     <div class="tab-page" id="page-repeat-customers">
       <div class="page-header">
         <div class="page-title">Repeat Customers</div>
-        <div class="page-sub">Users with more than one order</div>
       </div>
       <div class="sql-box">
         <div class="sql-box-label">SQL</div>
@@ -677,7 +673,6 @@ body {
     <div class="tab-page" id="page-popular-products">
       <div class="page-header">
         <div class="page-title">Top Products</div>
-        <div class="page-sub">Ranked by units sold</div>
       </div>
       <div class="sql-box">
         <div class="sql-box-label">SQL</div>
@@ -703,7 +698,6 @@ body {
     <div class="tab-page" id="page-variants">
       <div class="page-header">
         <div class="page-title">Variants</div>
-        <div class="page-sub">Sales performance per product variant</div>
       </div>
       <div class="sql-box">
         <div class="sql-box-label">SQL</div>
@@ -728,7 +722,6 @@ body {
     <div class="tab-page" id="page-reviews">
       <div class="page-header">
         <div class="page-title">Reviews</div>
-        <div class="page-sub">Average ratings and review counts per product</div>
       </div>
       <div class="sql-box">
         <div class="sql-box-label">SQL</div>
@@ -766,7 +759,6 @@ body {
     <div class="tab-page" id="page-category-revenue">
       <div class="page-header">
         <div class="page-title">Revenue Split</div>
-        <div class="page-sub">Revenue and orders by category</div>
       </div>
       <div class="sql-box">
         <div class="sql-box-label">SQL</div>
@@ -794,10 +786,9 @@ body {
     <div class="tab-page" id="page-category-overtime">
       <div class="page-header">
         <div class="page-title">Category Trends</div>
-        <div class="page-sub">Revenue per category over time</div>
       </div>
       <div class="sql-box">
-        <div class="sql-box-label">SQL — Gold Query 🔥</div>
+        <div class="sql-box-label">SQL</div>
         <pre><span class="sql-keyword">SELECT</span> c.category_name, <span class="sql-keyword">DATE</span>(o.order_date) <span class="sql-keyword">AS</span> date,
        <span class="sql-keyword">SUM</span>(oi.quantity * oi.price_at_purchase) <span class="sql-keyword">AS</span> revenue
 <span class="sql-keyword">FROM</span> order_items oi
@@ -822,7 +813,6 @@ body {
     <div class="tab-page" id="page-user-activity">
       <div class="page-header">
         <div class="page-title">Login Activity</div>
-        <div class="page-sub">Daily active users and login counts</div>
       </div>
       <div class="sql-box">
         <div class="sql-box-label">SQL</div>
@@ -847,7 +837,6 @@ body {
     <div class="tab-page" id="page-city-revenue">
       <div class="page-header">
         <div class="page-title">City Revenue</div>
-        <div class="page-sub">User and revenue distribution by city</div>
       </div>
       <div class="sql-box">
         <div class="sql-box-label">SQL</div>
@@ -872,7 +861,6 @@ body {
     <div class="tab-page" id="page-inactive-users">
       <div class="page-header">
         <div class="page-title">Inactive Users</div>
-        <div class="page-sub">Users with no login in the last 30 days</div>
       </div>
       <div class="sql-box">
         <div class="sql-box-label">SQL</div>
@@ -896,7 +884,6 @@ body {
     <div class="tab-page" id="page-no-orders">
       <div class="page-header">
         <div class="page-title">Zero Orders</div>
-        <div class="page-sub">Registered users who have never ordered</div>
       </div>
       <div class="sql-box">
         <div class="sql-box-label">SQL</div>
