@@ -1,80 +1,87 @@
-# E-Commerce Analytics Dashboard
+# 🚀 EDAS – E-commerce Data Analytics System
 
-## Project Structure
-```
-/backend      → Express + MySQL2 API (deploy to Railway)
-/frontend     → Pure HTML/CSS/JS dashboard (deploy to Vercel)
-```
+A full-stack analytics dashboard built to analyze e-commerce data including users, orders, revenue, product performance, and customer behavior.
 
 ---
 
-## Backend Setup (Railway)
+## 📊 Features
 
-1. Push the `/backend` folder to a GitHub repo
-2. Create a new Railway project → "Deploy from GitHub"
-3. Add these environment variables in Railway dashboard:
-   ```
-   DB_HOST=your_railway_mysql_host
-   DB_PORT=3306
-   DB_USER=root
-   DB_PASSWORD=your_password
-   DB_NAME=your_database_name
-   PORT=5000
-   ```
-4. Railway will auto-deploy. Copy the public URL (e.g. `https://yourapp.railway.app`)
+### 📌 Dashboard Overview
+- Total Revenue Tracking (₹ INR)
+- Orders Breakdown:
+  - Delivered
+  - Cancelled
+  - In Progress (Processing + Shipped)
+- Top Performing Products
+- Poor Performing Products
+- Category-wise Revenue
 
 ---
 
-## Frontend Setup (Vercel)
-
-1. Open `frontend/index.html`
-2. Near the top of the `<script>` section, update the API URL:
-   ```js
-   const API = window.location.hostname === 'localhost'
-     ? 'http://localhost:5000'
-     : 'https://yourapp.railway.app';  // ← paste your Railway URL here
-   ```
-3. Push `/frontend` folder to GitHub
-4. Go to vercel.com → New Project → import that repo
-5. Vercel detects static files automatically → Deploy ✓
+### 👤 User Analytics
+- Search user by ID
+- View:
+  - Orders history
+  - Order status breakdown
+  - Reviews given
+  - Login activity
+- Track user growth via login data
 
 ---
 
-## Local Development
+### 📦 Product & SKU Analytics
+- Performance of each variant (SKU)
+- Revenue & sales trends over time
+- Category mapping
+- Sort:
+  - Top performers
+  - Least performers
 
-**Backend:**
-```bash
-cd backend
-npm install
-cp .env.example .env   # fill in your DB credentials
-npm run dev
-```
+---
+
+### 📈 Advanced Analytics
+- Category trends over time
+- Revenue grouping (date/category)
+- Custom SQL query execution
+- Pagination for large datasets
+- Filters (date, category)
+
+---
+
+## 🛠️ Tech Stack
 
 **Frontend:**
-```bash
-cd frontend
-# just open index.html in your browser, or use:
-npx serve .
-```
+- HTML, CSS, JavaScript
+- Responsive Dashboard UI
+
+**Backend:**
+- Node.js
+- Express.js
+
+**Database:**
+- MySQL (Railway hosted)
+
+**Deployment:**
+- Vercel (Frontend + Serverless backend)
 
 ---
 
-## API Endpoints
+## 🗄️ Database Schema
 
-| Endpoint | Description |
-|---|---|
-| `GET /api/dashboard` | KPI metrics |
-| `GET /api/orders/status` | Orders by status |
-| `GET /api/orders/daily` | Daily orders & revenue |
-| `GET /api/orders/top-users` | Top 10 spenders |
-| `GET /api/orders/repeat-customers` | Users with >1 order |
-| `GET /api/orders/no-orders-users` | Users with zero orders |
-| `GET /api/products/popular` | Top 15 products |
-| `GET /api/products/variants` | Variant sales |
-| `GET /api/products/reviews` | Product ratings |
-| `GET /api/products/low-rated` | Products rated < 3★ |
-| `GET /api/categories/revenue` | Revenue by category |
-| `GET /api/categories/overtime` | Category trends over time |
-| `GET /api/users/activity` | Daily active users |
-| `GET /api/users/inactive` | Users inactive 30+ days |
-| `GET /api/users/city` | Revenue by city |
+- Users
+- Orders
+- Order Items
+- Products
+- Product Variants
+- Categories
+- Reviews
+- User Logins
+
+---
+
+## ⚙️ Setup Instructions
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/AkshitMishra1107/Ecomlytics.git
+cd your-repo
